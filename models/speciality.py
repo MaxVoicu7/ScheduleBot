@@ -10,4 +10,4 @@ class Speciality(Base):
   abbreviation = Column(String)
 
   def __repr__(self):
-    return f"<Speciality(name='{self.name}', abbreviation='{self.abbreviation}')>"
+    return f"Speciality = '{self.name}'"
