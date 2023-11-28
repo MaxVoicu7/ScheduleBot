@@ -1,9 +1,9 @@
 from dotenv import load_dotenv
 import os
 
-load_dotenv()  # Încarcă variabilele de mediu din .env
+load_dotenv()
 
-# bot constants
+# telegram bot constants
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 BOTNAME = os.getenv('BOTNAME')
 
