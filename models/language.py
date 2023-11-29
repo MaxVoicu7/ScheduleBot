@@ -8,4 +8,4 @@ class Language(Base):
   name = Column(String)
 
   def __repr__(self):
-    return f"Language = '{self.name}'"
+    return f"{self.name}"

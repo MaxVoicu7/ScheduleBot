@@ -2,8 +2,8 @@ from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from db.base import Base
 
-from language import Language
-from speciality import Speciality
+from .language import Language
+from .speciality import Speciality
 
 class Group(Base):
   __tablename__ = 'StudyGroup'
@@ -15,7 +15,7 @@ class Group(Base):
   specialityId = Column(Integer, ForeignKey('speciality.id'))
 
   language = relationship("Language")
-  Speciality = relationship("Speciality")
+  speciality = relationship("Speciality")
 
   def __repr__(self):
     return f"Group = '{self.name}'"

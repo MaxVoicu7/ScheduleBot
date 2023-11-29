@@ -5,6 +5,7 @@ from db.db_connect import SessionLocal
 from models.speciality import Speciality
 from models.language import Language
 from models.group import Group
+from models.user import User
 
 
 
@@ -12,10 +13,6 @@ async def select_speciality(update: Update, context: ContextTypes.DEFAULT_TYPE) 
   session = SessionLocal()
 
   specialities = session.query(Speciality).all()
-  languages = session.query(Language).all()
-  groups = session.query(Group).all()
-
-  print(languages)
 
   keyboard = [
     [InlineKeyboardButton(speciality.name, callback_data=str(speciality.id))]
@@ -30,7 +27,7 @@ async def select_speciality(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
 
 
-async def select_study_year(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+async def select_semester(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
   query = update.callback_query
   await query.answer()
 
@@ -41,7 +38,7 @@ async def select_study_year(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
   if speciality:
     semesters = [
-      [InlineKeyboardButton(f"Semestrul {semester}", callback_data=f"{speciality_id}-{semester}-{speciality.name}")]
+      [InlineKeyboardButton(f"Semestrul {semester}", callback_data=f"{speciality_id}-{semester}")]
       for semester in range(1, speciality.semesters + 1)
     ]
 
@@ -55,10 +52,86 @@ async def select_study_year(update: Update, context: ContextTypes.DEFAULT_TYPE) 
 
 
 
+async def select_language(update: Update, contect: ContextTypes.DEFAULT_TYPE) -> None:
+  query = update.callback_query
+  await query.answer()
+
+  speciality_id, semester = query.data.split('-')
+  speciality_id = int(speciality_id)
+  semester = int(semester)
+
+  session = SessionLocal()
+
+  languages = session.query(Language).all()
+
+  if languages:
+    keyboard = [
+      [InlineKeyboardButton(f"{language}", callback_data=f"{speciality_id}-{semester}-{language.id}")]
+      for language in languages 
+    ]
+
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    await query.edit_message_text(text='Selectați limba de intruire:', reply_markup=reply_markup)
+  else:
+    await query.edit_message_text(text="Datele dvs nu sunt valide. Încercați din nou !")
+
+  session.close()
+
+
+
+async def select_group(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+  query = update.callback_query
+  await query.answer()
+
+  speciality_id, semester, language_id = query.data.split('-')
+  speciality_id = int(speciality_id)
+  semester = int(semester)
+  language_id = int(language_id)
+
+  session = SessionLocal()
+
+  groups = session.query(Group).filter(
+    Group.specialityId == speciality_id,
+    Group.semester == semester,
+    Group.languageId == language_id
+  ).all()
+
+  if groups:
+    keyboard = [
+      [InlineKeyboardButton(f"{group.name}", callback_data=f"{speciality_id}-{semester}-{language_id}-{group.id}")]
+      for group in groups
+    ]
+
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    await query.edit_message_text(text='Selectați grupa dvs:', reply_markup=reply_markup)
+  else:
+    await query.edit_message_text(text="Datele dvs nu sunt valide. Încercați din nou !")
+
+  session.close()
+
+
+
 async def finish_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
   query = update.callback_query
   await query.answer()
 
-  speciality_id, semester, speciality_name = query.data.split('-')
+  speciality_id, semester, language_id, group_id = query.data.split('-')
+  chat_id = str(update.effective_chat.id)
 
-  await query.edit_message_text(text=f"Specialitate: {speciality_name}\nAn de studiu: {(int(semester) + 1) // 2}\nSemestru: {semester}")
+  session = SessionLocal()
+
+  user = session.query(User).filter(User.chatId == chat_id).first()
+
+  if user:
+    user.groupId = int(group_id)
+  else: 
+    user = User(chatId=chat_id, groupId=int(group_id))
+    session.add(user)
+
+  session.commit()
+
+  await query.edit_message_text(text=f"Specialitate: {speciality_id}\nAn de studiu: {(int(semester) + 1) // 2}\nLimba de intruire: {language_id}\nSemestru: {semester}\nGrupa: {group_id}")
+
+  session.close()
