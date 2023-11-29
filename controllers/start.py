@@ -3,6 +3,8 @@ from telegram.ext import ContextTypes
 
 from db.db_connect import SessionLocal
 from models.speciality import Speciality
+from models.language import Language
+from models.group import Group
 
 
 
@@ -10,6 +12,10 @@ async def select_speciality(update: Update, context: ContextTypes.DEFAULT_TYPE) 
   session = SessionLocal()
 
   specialities = session.query(Speciality).all()
+  languages = session.query(Language).all()
+  groups = session.query(Group).all()
+
+  print(languages)
 
   keyboard = [
     [InlineKeyboardButton(speciality.name, callback_data=str(speciality.id))]

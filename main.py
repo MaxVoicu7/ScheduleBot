@@ -4,6 +4,7 @@ from config.config import TELEGRAM_TOKEN
 from controllers.start import select_speciality, select_study_year, finish_selection
 
 if __name__ == '__main__':
+
     application = Application.builder().token(TELEGRAM_TOKEN).build()
 
     specialities_handler = CommandHandler("start", select_speciality)
