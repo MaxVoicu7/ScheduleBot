@@ -1,7 +1,8 @@
 from telegram import Update
-from telegram.ext import Application, CommandHandler, ContextTypes, CallbackQueryHandler
+from telegram.ext import Application, CommandHandler, ContextTypes, CallbackQueryHandler, MessageHandler, filters
 from config.config import TELEGRAM_TOKEN
 from controllers.start import select_speciality, select_semester, select_language, select_group, finish_selection
+from controllers.menu import handle_menu_action
 
 if __name__ == '__main__':
 
@@ -21,5 +22,7 @@ if __name__ == '__main__':
 
     insert_user_handler = CallbackQueryHandler(finish_selection, pattern='^\d+-\d+-\d+-\d+$')
     application.add_handler(insert_user_handler)
+
+    application.add_handler(MessageHandler(filters.Text() & ~filters.Command(), handle_menu_action))
 
     application.run_polling()

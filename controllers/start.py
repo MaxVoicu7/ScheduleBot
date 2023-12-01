@@ -6,6 +6,7 @@ from models.speciality import Speciality
 from models.language import Language
 from models.group import Group
 from models.user import User
+from .menu import main_menu_keyboard
 
 
 
@@ -132,6 +133,12 @@ async def finish_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 
   session.commit()
 
-  await query.edit_message_text(text=f"Specialitate: {speciality_id}\nAn de studiu: {(int(semester) + 1) // 2}\nLimba de intruire: {language_id}\nSemestru: {semester}\nGrupa: {group_id}")
+  # await query.edit_message_text(text=f"Specialitate: {speciality_id}\nAn de studiu: {(int(semester) + 1) // 2}\nLimba de intruire: {language_id}\nSemestru: {semester}\nGrupa: {group_id}")
+  reply_markup = main_menu_keyboard()
+
+  await update.effective_chat.send_message(
+    text="Alege o opțiune din meniu:",
+    reply_markup=reply_markup
+  )
 
   session.close()
