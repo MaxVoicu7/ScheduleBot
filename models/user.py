@@ -4,12 +4,14 @@ from db.base import Base
 
 from .group import Group
 
+# stores all the users that interact with the bot and select their data
+
 class User(Base):
   __tablename__ = 'user'
 
-  id = Column(Integer, primary_key=True)
-  chatId = Column(String)
-  groupId = Column(Integer, ForeignKey('StudyGroup.id'))
+  id = Column(Integer, primary_key=True, autoincrement=True)
+  chatId = Column(String, nullable=False)
+  groupId = Column(Integer, ForeignKey('studyGroup.id'), nullable=False)
 
   group = relationship("Group")
 

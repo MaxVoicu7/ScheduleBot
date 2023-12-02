@@ -5,17 +5,19 @@ from db.base import Base
 from .language import Language
 from .speciality import Speciality
 
-class Group(Base):
-  __tablename__ = 'StudyGroup'
+# stores all the active groups of CIM Faculty
 
-  id = Column(Integer, primary_key=True)
-  name = Column(String)
-  languageId = Column(Integer, ForeignKey('language.id'))
-  semester = Column(Integer)
-  specialityId = Column(Integer, ForeignKey('speciality.id'))
+class Group(Base):
+  __tablename__ = 'studyGroup'
+
+  id = Column(Integer, primary_key=True, autoincrement=True)
+  name = Column(String, nullable=False)
+  languageId = Column(Integer, ForeignKey('language.id'), nullable=False)
+  semester = Column(Integer, nullable=False)
+  specialityId = Column(Integer, ForeignKey('speciality.id'), nullable=False)
 
   language = relationship("Language")
   speciality = relationship("Speciality")
 
   def __repr__(self):
-    return f"Group = '{self.name}'"
+    return f"{self.name}"

@@ -1,9 +1,10 @@
 from sqlalchemy import Column, Integer, String
 from db.base import Base
 
-# stores the languages in which courses are given inside FCIM 
-class Language(Base):
-  __tablename__ = 'language'
+# used to store all the courses students have, like Baze de Date (Database), Programarea Orientata pe Obiect (OOP)
+
+class Course(Base):
+  __tablename__ = 'course'
 
   id = Column(Integer, primary_key=True, autoincrement=True)
   name = Column(String, nullable=False)
