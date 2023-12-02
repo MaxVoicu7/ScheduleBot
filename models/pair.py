@@ -11,8 +11,8 @@ class Pair(Base):
   __tablename__ = 'pair'
 
   id = Column(Integer, primary_key=True, autoincrement=True)
-  groupId = Column(Integer, ForeignKey('group.id'), nullable=False)
-  CourseSessionId = Column(Integer, ForeignKey('courseSession.id'), nullable=False)
+  groupId = Column(Integer, ForeignKey('studyGroup.id'), nullable=False)
+  courseSessionId = Column(Integer, ForeignKey('courseSession.id'), nullable=False)
 
   group = relationship("Group")
   courseSession = relationship("CourseSession")
