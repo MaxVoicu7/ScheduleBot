@@ -133,12 +133,18 @@ async def finish_selection(update: Update, context: ContextTypes.DEFAULT_TYPE) -
 
   session.commit()
 
-  # await query.edit_message_text(text=f"Specialitate: {speciality_id}\nAn de studiu: {(int(semester) + 1) // 2}\nLimba de intruire: {language_id}\nSemestru: {semester}\nGrupa: {group_id}")
+  await query.edit_message_text(
+    text="În câteva momente vei primi meniul principal.",  # Mesaj temporar
+    reply_markup=None  # Acest lucru elimină tastatura inline
+  )
+
+  # Creează markup-ul pentru meniul principal
   reply_markup = main_menu_keyboard()
 
+  # Trimite un nou mesaj cu meniul principal
   await update.effective_chat.send_message(
-    text="Alege o opțiune din meniu:",
-    reply_markup=reply_markup
+      text="Alege o opțiune din meniu:",
+      reply_markup=reply_markup
   )
 
   session.close()
