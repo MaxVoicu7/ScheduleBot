@@ -3,7 +3,9 @@ from telegram.ext import ContextTypes
 from datetime import timedelta, date, datetime
 from db.db_connect import SessionLocal
 
-from .menu_options import get_user_group_id, get_tomorrows_weekday, get_tomorrows_schedule, format_schedule, get_week_parity
+from .menu_options import get_user_group_id, format_schedule, find_next_day_with_pairs
+
+
 
 def main_menu_keyboard():
   keyboard = [
@@ -24,17 +26,25 @@ async def handle_menu_action(update: Update, context: ContextTypes.DEFAULT_TYPE)
     session = SessionLocal()
 
     groupId = get_user_group_id(session, chat_id)
-    tomorrow = get_tomorrows_weekday()
-    week_parity = get_week_parity(date.today() + timedelta(days=1))
-    pairs = get_tomorrows_schedule(session, groupId, tomorrow, week_parity)
+    tomorrow_date = datetime.today() + timedelta(days=6)
+    next_date, next_weekday, pairs = find_next_day_with_pairs(session, groupId, tomorrow_date)
 
-    tomorrow_date = datetime.today() + timedelta(days=1)
-    intro_message = f"Orarul pentru mâine, {tomorrow}, {tomorrow_date.strftime('%d.%m.%Y')}"
-
-    schedule_message = f"{intro_message}\n\n{format_schedule(pairs)}"
-    await update.message.reply_text(schedule_message, parse_mode='HTML')
+    if pairs:
+      if next_date == tomorrow_date:
+        intro_message = f"Orarul pentru mâine, {next_weekday}, {next_date.strftime('%d.%m.%Y')}"
+      else:
+        intro_message = f"Mâine nu ai perechi. Uite orarul pentru {next_weekday}, {next_date.strftime('%d.%m.%Y')}"
+        
+      schedule_message = f"{intro_message}\n\n{format_schedule(pairs)}"
+      await update.message.reply_text(schedule_message, parse_mode='HTML')
+      
+    else:
+      await update.message.reply_text("Nu ai perechi în următoarele zile.")
 
     session.close()
+
+
+
 
   elif text == "Opțiunea 2":
     pass
