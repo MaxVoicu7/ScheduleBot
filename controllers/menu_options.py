@@ -109,3 +109,71 @@ def find_next_day_with_pairs(session, group_id, start_date):
 
 
 
+# based on the current time, returns all the available pairs for today
+def check_today_schedule(session: Session, group_id: int) -> str:
+  current_time = datetime.now()
+  current_weekday = get_weekday(current_time)
+  week_parity = get_week_parity(current_time)
+
+  pairs = get_tomorrows_schedule(session, group_id, current_weekday, week_parity)
+  available_pairs = [pair for pair in pairs if (pair.sessionSchedule.startTime <= current_time.time() and pair.sessionSchedule.endTime > current_time.time()) or (pair.sessionSchedule.startTime >= current_time.time())]
+
+  if available_pairs:
+    schedule_message = format_schedule(available_pairs)
+    return f"Perechile de astăzi:\n\n{schedule_message}"
+  else:
+    return "Nu sunt perechi disponibile pentru astăzi."
+  
+
+
+
+def get_week_schedule(session: Session, group_id: int):
+    week_schedule = {}
+
+    for weekday in ["Luni", "Marti", "Miercuri", "Joi", "Vineri", "Sambata", "Duminica"]:
+        pairs = (
+            session.query(CourseSession)
+            .join(Pair, CourseSession.id == Pair.courseSessionId)
+            .join(Course, CourseSession.courseId == Course.id)
+            .join(Teacher, CourseSession.teacherId == Teacher.id)
+            .join(Room, CourseSession.roomId == Room.id)
+            .join(SessionSchedule, CourseSession.sessionTimeId == SessionSchedule.id)
+            .join(WeekDay, CourseSession.weekDayId == WeekDay.id)
+            .filter(
+                Pair.groupId == group_id,
+                WeekDay.day == weekday
+            )
+            .all()
+        )
+
+        if pairs:
+            week_schedule[weekday] = pairs
+
+    return week_schedule
+
+
+
+
+def format_schedule_with_parity(course_sessions):
+    sorted_sessions = sorted(course_sessions, key=lambda session: session.sessionSchedule.startTime)
+
+    message_lines = []
+    
+    for index, session in enumerate(sorted_sessions, start=1):
+        start_time = session.sessionSchedule.startTime.strftime("%H:%M")
+        end_time = session.sessionSchedule.endTime.strftime("%H:%M")
+
+        # Adăugăm textul corespunzător parității
+        if session.weekParityId == 1:
+            parity_text = " (săpt. pară)"
+        elif session.weekParityId == 2:
+            parity_text = " (săpt. impară)"
+        else:
+            parity_text = ""  # Pentru perechi din fiecare săptămână
+
+        line = (f"<b>{index}. {start_time} -> {end_time}</b> în {session.room.name}{parity_text}\n"
+                f"    {session.activityType.name} cu <i>{session.teacher.name}</i>\n"
+                f"    <b>{session.course.name}</b>\n")
+        message_lines.append(line)
+
+    return "\n".join(message_lines)
