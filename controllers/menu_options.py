@@ -1,5 +1,5 @@
-import locale
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
+from sqlalchemy import or_
 from sqlalchemy.orm import Session
 from models.user import User
 from models.courseSession import CourseSession
@@ -9,22 +9,48 @@ from models.course import Course
 from models.teacher import Teacher
 from models.room import Room
 from models.sessionSchedule import SessionSchedule
+from models.weekParity import WeekParity
 
 def get_user_group_id(session: Session, chat_id: str) -> int:
   user = session.query(User).filter(User.chatId == chat_id).first()
   return user.groupId if user else None
 
 
-locale.setlocale(locale.LC_TIME, 'ro_RO')
 
 def get_tomorrows_weekday():
-  tomorrow = datetime.now() + timedelta(days=5)
-  return tomorrow.strftime("%A")
+    tomorrow = datetime.today() + timedelta(days=1)
+    weekday = tomorrow.strftime("%A")  # Obține ziua săptămânii în engleză
+
+    # Dicționar pentru maparea zilelor săptămânii din engleză la română fără diacritice
+    english_to_romanian = {
+        "Monday": "Luni",
+        "Tuesday": "Marti",
+        "Wednesday": "Miercuri",
+        "Thursday": "Joi",
+        "Friday": "Vineri",
+        "Saturday": "Sambata",
+        "Sunday": "Duminica"
+    }
+
+    return english_to_romanian.get(weekday, weekday)
 
 
 
-def get_tomorrows_schedule(session: Session, group_id: int, weekday: str):
-    # Interogarea include acum join-uri către toate tabelele relevante
+
+def get_week_parity(current_date):
+  start_date = date(2023, 9, 4)  # Presupunem că 4 septembrie 2023 este o zi de luni și începe săptămâna impară
+
+  # Calculăm diferența în zile
+  delta = current_date - start_date
+
+    # Calculăm numărul de săptămâni întregi care au trecut
+  weeks_passed = delta.days // 7
+
+  return "impară" if weeks_passed % 2 == 0 else "pară"
+
+
+
+def get_tomorrows_schedule(session: Session, group_id: int, weekday: str, week_parity: str):
     pairs = (
         session.query(CourseSession)
         .join(Pair, CourseSession.id == Pair.courseSessionId)
@@ -33,18 +59,35 @@ def get_tomorrows_schedule(session: Session, group_id: int, weekday: str):
         .join(Room, CourseSession.roomId == Room.id)
         .join(SessionSchedule, CourseSession.sessionTimeId == SessionSchedule.id)
         .join(WeekDay, CourseSession.weekDayId == WeekDay.id)
-        .filter(Pair.groupId == group_id, WeekDay.day == weekday)
+        .join(WeekParity, CourseSession.weekParityId == WeekParity.id, isouter=True)  # Join outer pentru a include și perechile care au weekParityId ca null
+        .filter(
+            Pair.groupId == group_id,
+            WeekDay.day == weekday,
+            # Adaugă condițiile pentru paritatea săptămânii
+            or_(
+                CourseSession.weekParityId == None,  # Se repetă săptămânal
+                WeekParity.name == week_parity  # Se potrivește cu paritatea săptămânii actuale
+            )
+        )
         .all()
     )
 
     return pairs
 
 
-def format_schedule(pairs):
+
+def format_schedule(course_sessions):
+  sorted_sessions = sorted(course_sessions, key=lambda session: session.sessionSchedule.startTime)
+
   message_lines = []
-  
-  for pair in pairs:
-    line = f"{pair.course.name} cu {pair.teacher.name}, la sala {pair.room.name}, de la {pair.sessionSchedule.startTime} până la {pair.sessionSchedule.endTime}"
+    
+  for index, session in enumerate(sorted_sessions, start=1):
+    start_time = session.sessionSchedule.startTime.strftime("%H:%M")
+    end_time = session.sessionSchedule.endTime.strftime("%H:%M")
+
+    line = (f"<b>{index}. {start_time} -> {end_time}</b> în {session.room.name}\n"
+            f"    {session.activityType.name} cu <i>{session.teacher.name}</i>\n"
+            f"    <b>{session.course.name}</b>\n")
     message_lines.append(line)
-  
+
   return "\n".join(message_lines)

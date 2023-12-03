@@ -35,4 +35,4 @@ class CourseSession(Base):
   weekParity = relationship("WeekParity")
 
   def __repr__(self):
-    return f"self.id"
+    return f"{self.weekParityId}"
