@@ -1,5 +1,17 @@
-from telegram.ext import CommandHandler, CallbackQueryHandler, MessageHandler, filters
+"""
+handlers.py
 
+This module is responsible for setting up the command and callback query handlers for the Telegram bot. 
+
+Functions and components:
+  - add_handlers()
+
+Usage:
+  This module is imported and utilized in the main application file to configure the Telegram bot application 
+  with necessary handlers for user interaction.
+"""
+
+from telegram.ext import CommandHandler, CallbackQueryHandler, MessageHandler, filters
 from controllers.start import select_speciality, select_semester, select_language, select_group, finish_selection
 from controllers.menu import handle_menu_action
 
