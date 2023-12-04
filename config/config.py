@@ -3,11 +3,13 @@ import os
 
 load_dotenv()
 
-# telegram bot constants
+# Telegram Bot Configuration
+# Retrieving the Telegram bot token and bot name from environment variables
 TELEGRAM_TOKEN = os.getenv('TELEGRAM_TOKEN')
 BOTNAME = os.getenv('BOTNAME')
 
-# database connection constants
+# Database Connection Configuration
+# Retrieving database connection details from environment variables
 DB_USERNAME = os.getenv('DB_USERNAME')
 DB_PASSWORD = os.getenv('DB_PASSWORD')
 DB_HOST = os.getenv('DB_HOST')
