@@ -1,7 +1,21 @@
+"""
+sessionSchedule.py
+
+This module defines the SessionSchedule model, which represents time intervals for academic 
+sessions or classes. Each instance of SessionSchedule specifies a start and end time, 
+denoting the duration of a particular class or session.
+
+Attributes:
+  - id (Integer): Primary key, uniquely identifying each session schedule in the database.
+  - startTime (Time): The start time of the academic session.
+  - endTime (Time): The end time of the academic session.
+
+This model is crucial for planning and organizing the daily schedule of classes, allowing for 
+a clear and structured timetable to be established for students and faculty.
+"""
+
 from sqlalchemy import Column, Integer, Time
 from db.base import Base
-
-# stores all the time intervals for a pair, like 8:00 -> 9:30
 
 class SessionSchedule(Base):
   __tablename__ = 'sessionSchedule'
@@ -11,4 +25,4 @@ class SessionSchedule(Base):
   endTime = Column(Time, nullable=False)
 
   def __repr__(self):
-    return f"{self.start_time} -> {self.end_time}"
+    return f"<SessionSchedule(start_time={self.startTime}, end_time={self.endTime})>"

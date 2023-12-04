@@ -67,7 +67,7 @@ async def select_language(update: Update, contect: ContextTypes.DEFAULT_TYPE) ->
 
   if languages:
     keyboard = [
-      [InlineKeyboardButton(f"{language}", callback_data=f"{speciality_id}-{semester}-{language.id}")]
+      [InlineKeyboardButton(f"{language.name}", callback_data=f"{speciality_id}-{semester}-{language.id}")]
       for language in languages 
     ]
 
