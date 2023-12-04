@@ -27,6 +27,9 @@ async def handle_menu_action(update: Update, context: ContextTypes.DEFAULT_TYPE)
   session = SessionLocal()
   groupId = get_user_group_id(session, chat_id)
 
+
+
+
   if text == "Orarul pentru mâine":
 
     tomorrow_date = datetime.today() + timedelta(days=1)
@@ -44,9 +47,15 @@ async def handle_menu_action(update: Update, context: ContextTypes.DEFAULT_TYPE)
     else:
       await update.message.reply_text("Nu ai perechi în următoarele zile.")
 
+
+
+
   elif text == "Orarul pentru astăzi":
     schedule_message = check_today_schedule(session, groupId)
     await update.message.reply_text(schedule_message, parse_mode='HTML')
+
+
+
 
   elif text == "Paritatea săptămânii":
     current_date = datetime.now()
@@ -59,15 +68,18 @@ async def handle_menu_action(update: Update, context: ContextTypes.DEFAULT_TYPE)
     week_schedule = get_week_schedule(session, groupId)
 
     if week_schedule:
-        schedule_messages = []
-        for weekday, pairs in week_schedule.items():
-            schedule_message = f"Orarul pentru {weekday}:\n\n{format_schedule_with_parity(pairs)}"
-            schedule_messages.append(schedule_message)
+      schedule_messages = []
         
-        full_schedule = "\n\n".join(schedule_messages)
-        await update.message.reply_text(full_schedule, parse_mode='HTML')
-    else:
-        await update.message.reply_text("Nu există perechi pentru această săptămână.")
-    
-  session.close()
+      for weekday, pairs in week_schedule.items():
+        schedule_message = f"Orarul pentru {weekday}:\n\n{format_schedule_with_parity(pairs)}"
+        schedule_messages.append(schedule_message)
+        
+      full_schedule = "\n\n".join(schedule_messages)
+      await update.message.reply_text(full_schedule, parse_mode='HTML')
 
+    else:
+      await update.message.reply_text("Nu există perechi pentru această săptămână.")
+    
+
+
+  session.close()
