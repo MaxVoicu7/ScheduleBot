@@ -50,7 +50,7 @@ def add_handlers(application):
   application.add_handler(CallbackQueryHandler(select_group, pattern='^\d+-\d+-\d+$'))
 	
   # callback handler for completing the user's selection process
-  application.add_handler(CallbackQueryHandler(finish_selection, pattern='^\d+-\d+-\d+-\d+$'))
+  application.add_handler(CallbackQueryHandler(finish_selection, pattern='^group_id:\d+$'))
 	
   # handler for bot menu
   application.add_handler(MessageHandler(filters.Text() & ~filters.Command(), handle_menu_action))
