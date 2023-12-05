@@ -22,7 +22,7 @@ progress the selection process.
 from telegram import Update
 from telegram.ext import ContextTypes
 from db.db_connect import SessionLocal
-from .menu import main_menu_keyboard
+from utils.ui_helpers import main_menu_keyboard
 from db.interogations import get_specialities, get_speciality_by_id, get_languages, get_groups, update_or_create_user
 from utils.ui_helpers import build_speciality_keyboard, build_semester_keyboard, build_language_keyboard, build_group_keyboard
 

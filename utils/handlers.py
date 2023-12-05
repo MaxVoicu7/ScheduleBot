@@ -16,10 +16,6 @@ from controllers.start import select_speciality, select_semester, select_languag
 from controllers.menu import handle_menu_action
 
 
-# ==========================================================================================================
-# =                                        add_handlers function                                           =
-# ==========================================================================================================
-
 
 def add_handlers(application):
 	
